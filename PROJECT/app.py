@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from modif import MODIF, RECOMMENDATIONS
 from calculator import calculate_price
-from data_storage import save_history, load_history
+from data_storage import save_history
 
 app = Flask(__name__)
 
@@ -15,7 +15,6 @@ def index():
     MODS = list(MODIF)
 
     if request.method == "POST":
-        # Данные пользователя
         USER_INFO = {
             "имя": request.form.get("name", "").strip(),
             "компания": request.form.get("company", "").strip(),
@@ -26,17 +25,15 @@ def index():
         RAW_SELECT = request.form.getlist("modifications")
         SELECT = [ITEM for ITEM in RAW_SELECT if ITEM in MODIF]
 
-        # Проверяем рекомендации
         for MOD in SELECT:
             if MOD in RECOMMENDATIONS:
                 REC = RECOMMENDATIONS[MOD]
                 if REC not in SELECT:
                     RECOMM.append(REC)
 
-        WANT_ADD = request.form.get("accept_recommendations")
+        ACTION = request.form.get("recommendation_action")
 
-        # Если рекомендации есть, но пользователь не подтвердил — ждём подтверждение
-        if RECOMM and not WANT_ADD:
+        if RECOMM and not ACTION:
             return render_template(
                 "index.html",
                 MODS=MODS,
@@ -47,8 +44,7 @@ def index():
                 USER_INFO=USER_INFO
             )
 
-        # Добавляем рекомендации, если согласие получено
-        if WANT_ADD:
+        if ACTION == "add":
             for R in RECOMM:
                 if R not in SELECT:
                     SELECT.append(R)
@@ -65,37 +61,6 @@ def index():
         RESULT=RESULT,
         USER_INFO=USER_INFO
     )
-
-
-#API
-
-@app.route("/api/history", methods=["GET"])
-def api_history():
-    return jsonify(load_history())
-
-@app.route("/api/calculate", methods=["POST"])
-def api_calculate():
-    data = request.get_json()
-
-    USER_INFO = data.get("user", {})
-    SELECT = data.get("modifications", [])
-
-    SELECT = [mod for mod in SELECT if mod in MODIF]
-
-    for MOD in SELECT:
-        if MOD in RECOMMENDATIONS:
-            REC = RECOMMENDATIONS[MOD]
-            if REC not in SELECT:
-                SELECT.append(REC)
-
-    RESULT = calculate_price(SELECT)
-    save_history(USER_INFO, RESULT, SELECT)
-
-    return jsonify({
-        "user": USER_INFO,
-        "selected": SELECT,
-        "result": RESULT
-    })
 
 if __name__ == "__main__":
     app.run(debug=True)
