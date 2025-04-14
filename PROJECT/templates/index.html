@@ -13,7 +13,7 @@
     <input name="company" placeholder="Компания" value="{{ USER_INFO['компания'] if USER_INFO and 'компания' in USER_INFO else '' }}"><br>
     <input name="phone" placeholder="Контактный телефон" value="{{ USER_INFO['номер телефона'] if USER_INFO and 'номер телефона' in USER_INFO else '' }}"><br>
     <input name="email" placeholder="Email" value="{{ USER_INFO['email'] if USER_INFO and 'email' in USER_INFO else '' }}"><br><br>
-
+    
 
     <h3>Доступные модификации:</h3>
     {% for MOD_NAME in MODS %}
@@ -25,14 +25,17 @@
     {% endfor %}
 
     {% if RECOMM %}
-      <h3>Рекомендуемые модификации:</h3>
-      {% for R in RECOMM %}
-        - {{ R }}<br>
-      {% endfor %}
-      <label><input type="checkbox" name="accept_recommendations" checked> Добавить?</label><br>
-    {% endif %}
-
-    <br><button type="submit">Рассчитать</button>
+    <h3>Рекомендуемые модификации:</h3>
+    {% for R in RECOMM %}
+      - {{ R }}<br>
+    {% endfor %}
+    <p>Хотите добавить эти модификации?</p>
+    <button type="submit" name="recommendation_action" value="add">Добавить рекомендации и рассчитать</button>
+    <button type="submit" name="recommendation_action" value="skip">Не добавлять и рассчитать</button><br><br>
+  {% else %}
+    <button type="submit">Рассчитать</button>
+  {% endif %}
+  
   </form>
 
   {% if RESULT %}
