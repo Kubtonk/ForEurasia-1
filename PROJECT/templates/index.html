@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор стоимости комбайна</title>
+</head>
+<body>
+  <h1>===Калькулятор стоимости комбайна===</h1>
+
+  <form method="post">
+    <h3>Введите данные пользователя:</h3>
+    <input name="name" placeholder="ФИО" value="{{ USER_INFO.name if USER_INFO else '' }}" required><br>
+    <input name="company" placeholder="Компания" value="{{ USER_INFO.company if USER_INFO else '' }}"><br>
+    <input name="phone" placeholder="Контактный телефон" value="{{ USER_INFO.phone if USER_INFO else '' }}"><br>
+    <input name="email" placeholder="Email" value="{{ USER_INFO.email if USER_INFO else '' }}"><br><br>
+
+    <h3>Доступные модификации:</h3>
+    {% for MOD_NAME in MODS %}
+      <label>
+        <input type="checkbox" name="modifications" value="{{ MOD_NAME }}"
+          {% if MOD_NAME in SELECTED %}checked{% endif %}>
+        {{ MOD_NAME }} - {{ MODIF[MOD_NAME] }} тг
+      </label><br>
+    {% endfor %}
+
+    {% if RECOMM %}
+      <h3>Рекомендуемые модификации:</h3>
+      {% for R in RECOMM %}
+        - {{ R }}<br>
+      {% endfor %}
+      <label><input type="checkbox" name="accept_recommendations" checked> Добавить?</label><br>
+    {% endif %}
+
+    <br><button type="submit">Рассчитать</button>
+  </form>
+
+  {% if RESULT %}
+    <h2>===Результат===</h2>
+    <ul>
+      {% for KEY, VALUE in RESULT.items() %}
+        <li>{{ KEY }}: {{ VALUE|int if VALUE == VALUE|round else VALUE }} тг</li>
+      {% endfor %}
+    </ul>
+    <p>Сохранено в history.json</p>
+  {% endif %}
+</body>
+</html>
