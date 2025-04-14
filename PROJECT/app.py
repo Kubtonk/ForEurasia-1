@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from modif import MODIF, RECOMMENDATIONS
 from calculator import calculate_price
-from data_storage import save_history
+from data_storage import save_history, load_history
 
 app = Flask(__name__)
 
@@ -61,6 +61,36 @@ def index():
         RESULT=RESULT,
         USER_INFO=USER_INFO
     )
+
+# === API ===
+
+@app.route("/api/history", methods=["GET"])
+def api_history():
+    return jsonify(load_history())
+
+@app.route("/api/calculate", methods=["POST"])
+def api_calculate():
+    data = request.get_json()
+
+    USER_INFO = data.get("user", {})
+    SELECT = data.get("modifications", [])
+
+    SELECT = [mod for mod in SELECT if mod in MODIF]
+
+    for MOD in SELECT:
+        if MOD in RECOMMENDATIONS:
+            REC = RECOMMENDATIONS[MOD]
+            if REC not in SELECT:
+                SELECT.append(REC)
+
+    RESULT = calculate_price(SELECT)
+    save_history(USER_INFO, RESULT, SELECT)
+
+    return jsonify({
+        "user": USER_INFO,
+        "selected": SELECT,
+        "result": RESULT
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
