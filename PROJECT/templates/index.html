@@ -9,10 +9,11 @@
 
   <form method="post">
     <h3>Введите данные пользователя:</h3>
-    <input name="name" placeholder="ФИО" value="{{ USER_INFO.name if USER_INFO else '' }}" required><br>
-    <input name="company" placeholder="Компания" value="{{ USER_INFO.company if USER_INFO else '' }}"><br>
-    <input name="phone" placeholder="Контактный телефон" value="{{ USER_INFO.phone if USER_INFO else '' }}"><br>
-    <input name="email" placeholder="Email" value="{{ USER_INFO.email if USER_INFO else '' }}"><br><br>
+    <input name="name" placeholder="ФИО" value="{{ USER_INFO['имя'] if USER_INFO and 'имя' in USER_INFO else '' }}" required><br>
+    <input name="company" placeholder="Компания" value="{{ USER_INFO['компания'] if USER_INFO and 'компания' in USER_INFO else '' }}"><br>
+    <input name="phone" placeholder="Контактный телефон" value="{{ USER_INFO['номер телефона'] if USER_INFO and 'номер телефона' in USER_INFO else '' }}"><br>
+    <input name="email" placeholder="Email" value="{{ USER_INFO['email'] if USER_INFO and 'email' in USER_INFO else '' }}"><br><br>
+
 
     <h3>Доступные модификации:</h3>
     {% for MOD_NAME in MODS %}
